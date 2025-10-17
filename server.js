@@ -19,6 +19,7 @@ app.use(cors());
 app.use(morgan('dev'));
 
 //routes
+app.use("/api/v1/user", require("./routes/userRoute"));
 app.use("/api/v1/test", require("./routes/testRouter"));
 
 //port
@@ -27,4 +28,4 @@ const PORT = process.env.PORT;
 //listen
 app.listen(PORT, () => {
     console.log(`Node Server is running on ${process.env.DEV_MODE} mode on Port no ${PORT}`);
-})
+});
