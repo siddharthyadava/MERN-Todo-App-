@@ -20,8 +20,10 @@ const registerController = async (req, res) => {
                 message: "user already exist"
             })
         }
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
         //save user
-        const newUser = new userModel({username, email, password})
+        const newUser = new userModel({username, email, password:hashedPassword});
         await newUser.save();
 
         res.status(201).send({
@@ -37,18 +39,26 @@ const registerController = async (req, res) => {
         })
     }
 };
-
+ 
 //LOGIN
 const loginController = async (req, res) => {
     try {
         const {email, password} = req.body;
         //find user
-        const user = await userModel.findOne({email, password})
+        const user = await userModel.findOne({email})
         //validation
         if(!user) {
-            return res.status(500).send({
+            return res.status(404).send({
                 success: false,
                 message: "Invalid Email or Password"
+            })
+        }
+        //match password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if(!isMatch) {
+            return res.status(500).send({
+                success: false,
+                message: "Invalid Credentials"
             })
         }
         res.status(200).send({
