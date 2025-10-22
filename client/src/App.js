@@ -5,18 +5,20 @@ import Register from './pages/Auth/Register';
 import About from './pages/About';
 import TodoList from './pages/Todos/TodoList';
 import HomePage from './pages/Home/HomePage';
+import { Toaster } from 'react-hot-toast'
 
 function App() {
   return (
     <div>
       <Routes>
         <Route path='/' element={<Landing />} />
-        <Route path='homePage' element={<HomePage />} />
+        <Route path='home' element={<HomePage />} />
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
         <Route path='/about' element={<About />} />
         <Route path='/todoList' element={<TodoList />} />
       </Routes>
+      <Toaster />
     </div>
   );
 }
