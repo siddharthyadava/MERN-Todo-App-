@@ -62,4 +62,39 @@ const getTodoController = async (req, res) => {
     }
 };
 
-module.exports = { createTodoController, getTodoController };
+//delete api
+
+const deleteTodoController = async (req, res) => {
+    try {
+        
+        const {id} = req.params
+        if(!id) {
+            return res.status(404).send({
+                success: false,
+                message: 'No todo found with this id'
+            })
+        }
+        //find id
+        const todo = await todoModel.findByIdAndDelete({_id:id})
+        if(!todo) {
+            return res.status(404).send({
+                success: false,
+                message: 'No task found'
+            })
+        }
+
+        res.status(200).send({
+            success: true,
+            message: 'Your Task Has Been Deleted Successfully'
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({
+            success: false,
+            error,
+            message: 'Error in delete todo api'
+        })
+    }
+}
+
+module.exports = { createTodoController, getTodoController, deleteTodoController };
