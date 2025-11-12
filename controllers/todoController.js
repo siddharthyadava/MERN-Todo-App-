@@ -97,4 +97,32 @@ const deleteTodoController = async (req, res) => {
     }
 }
 
-module.exports = { createTodoController, getTodoController, deleteTodoController };
+//Update todo
+const updateTodoController = async (req, res) => {
+    try {
+        const {id} = req.params
+        if(!id) {
+            return res.status(404).send({
+                success: false,
+                message: 'please provide todo id'
+            })
+        }
+        const data = req.body
+        //update
+        const todo = await todoModel.findByIdAndUpdate(id,{$set:data},{returnOriginal:false})
+        res.status(200).send({
+            success:true,
+            message: 'Your task has been updated',
+            todo
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({
+            success: false,
+            error,
+            message: 'Error In Update Todo Api'
+        })
+    }
+}
+
+module.exports = { createTodoController, getTodoController, deleteTodoController, updateTodoController };

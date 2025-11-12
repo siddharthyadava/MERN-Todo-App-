@@ -3,6 +3,7 @@ const {
   createTodoController,
   getTodoController,
   deleteTodoController,
+  updateTodoController,
 } = require("../controllers/todoController");
 const authMiddleware = require("../middlewares/authMiddleware");
 
@@ -16,5 +17,8 @@ router.post("/getAll/:userId", authMiddleware, getTodoController);
 
 //DELETE TODO
 router.post('/delete/:id', authMiddleware, deleteTodoController);
+
+//UPDATE TODO
+router.patch('/update/:id', authMiddleware, updateTodoController);
 
 module.exports = router;
