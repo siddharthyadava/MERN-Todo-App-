@@ -17,8 +17,8 @@ const PopModel = ({
     const handleSubmit = async() => {
         try {
             const userData = JSON.parse(localStorage.getItem('todoapp'))
-            const id = userData && userData.user.id
-            const data = {title, description, id}
+            const createdBy = userData && userData.user.id
+            const data = {title, description, createdBy}
 
             if(!title || !description) {
                 return toast.error('Please provide Title or Description')

@@ -10,5 +10,10 @@ const createTodo = (data) => {
     return axios.post('/todo/create',data)
 }
 
-const TodoServices = {createTodo}
+//GET ALL TODO
+const getAllTodo = (id) => {
+    return axios.post(`/todo/getAll/${id}`)
+}
+
+const TodoServices = {createTodo, getAllTodo}
 export default TodoServices

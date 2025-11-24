@@ -1,16 +1,34 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 import Navbar from "../../components/Layout/Navbar";
 import PopModel from "../../components/Layout/PopModel";
+import TodoServices from "../../Services/TodoServices";
+import Card from "../../components/Card/Card";
 
 const HomePage = () => {
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [allTask, setAllTask] = useState([])
   //handle modal
   const openModalHandler = () => {
     setShowModal(true);
   };
+
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem('todoapp'))
+    const id = userData && userData?.user.id
+    const getUserTask = async () => {
+      try {
+        const {data} = await TodoServices.getAllTodo(id)
+        // console.log(data)
+        setAllTask(data?.todos)
+      }catch (error) {
+        console.log(error)
+      }
+    }
+    getUserTask()
+  },[])
   return (
     <div>
       <Navbar />
@@ -23,7 +41,7 @@ const HomePage = () => {
           </button>
         </div>
         <h1>
-          {title} and {description}
+          {allTask && <Card allTask={allTask} />}
         </h1>
         {/* =============modal================ */}
         <PopModel
