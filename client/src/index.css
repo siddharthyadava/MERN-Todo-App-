@@ -21,3 +21,25 @@
     width: 300px;
     /* background-color: blue; */
 }
+
+/* ==============CARD ================= */
+
+.chead {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.chead .task-inc {
+    color: #f7e373;
+    padding: 5px 10px;
+    font-family: cursive;
+    border-radius: 5px;
+}
+
+.chead .task-cmp {
+    color: #adfa49;
+    padding: 5px 10px;
+    font-family: cursive;
+    border-radius: 5px;
+}
