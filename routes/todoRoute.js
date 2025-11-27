@@ -13,7 +13,7 @@ const router = express.Router();
 router.post("/create", authMiddleware, createTodoController);
 
 //GET TODO
-router.post("/getAll/:userId", authMiddleware, getTodoController);
+router.post("/getAll/:userId", getTodoController);
 
 //DELETE TODO
 router.post('/delete/:id', authMiddleware, deleteTodoController);
