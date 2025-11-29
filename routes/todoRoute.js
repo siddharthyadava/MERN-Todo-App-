@@ -13,12 +13,12 @@ const router = express.Router();
 router.post("/create", authMiddleware, createTodoController);
 
 //GET TODO
-router.post("/getAll/:userId", getTodoController);
+router.post("/getAll/:userId", authMiddleware, getTodoController);
 
-//DELETE TODO
-router.delete('/delete/:id', authMiddleware, deleteTodoController);
+//DELEET TODO
+router.delete("/delete/:id", authMiddleware, deleteTodoController);
 
 //UPDATE TODO
-router.patch('/update/:id', authMiddleware, updateTodoController);
+router.patch("/update/:id", authMiddleware, updateTodoController);
 
 module.exports = router;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const Navbar = () => {
   const [username, setUsername] = useState("");
@@ -10,14 +10,14 @@ const Navbar = () => {
   //logout function
   const logoutHandler = () => {
     localStorage.removeItem("todoapp");
-    toast.success("logged out successfully");
+    toast.success("logout successfully");
     navigate("/login");
   };
 
   //get username
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("todoapp"));
-    console.log("username data ==> " + userData && userData.user.username);
+    console.log("username data ===>" + userData && userData.user.username);
     setUsername(userData && userData.user.username);
   }, []);
   return (
@@ -38,26 +38,26 @@ const Navbar = () => {
           <div className="collapse navbar-collapse" id="navbarTogglerDemo01">
             <h4 className="navbar-brand">
               <i className="fa-solid fa-user-tie" /> &nbsp;
-              <i>Welcome</i> {username}
+              <i>Welcome</i> {username}!
             </h4>
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
               <li className="nav-item">
                 <Link
                   className="nav-link active"
                   aria-current="page"
-                  to={"/home"}
+                  to="/home"
                 >
                   Home
                 </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to={"/todoList"}>
-                  My Todo List
+                <Link className="nav-link" to="/todoList">
+                  My todo List
                 </Link>
               </li>
               <li className="nav-item">
                 <button
-                  className="nav-link"
+                  className="nav-link "
                   title="logout"
                   onClick={logoutHandler}
                 >

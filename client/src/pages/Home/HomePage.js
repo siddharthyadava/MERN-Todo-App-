@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../../components/Layout/Navbar";
+import PopModal from "../../components/PopModal";
 import TodoServices from "../../Services/TodoServices";
 import Card from "../../components/Card/Card";
 import Spinner from "../../components/Spinner";
-import PopModal from "../../components/Layout/PopModel";
 
 const HomePage = () => {
   const [showModal, setShowModal] = useState(false);
