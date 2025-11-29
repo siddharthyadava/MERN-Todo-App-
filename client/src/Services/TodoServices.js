@@ -20,5 +20,11 @@ const updateTodo = (id, data) => {
     return axios.patch('/todo/update/' + id, data);
 }
 
-const TodoServices = {createTodo, getAllTodo, updateTodo}
+// DELETE Todo
+const deleteTodo = (id) => {
+    return axios.delete("/todo/delete/"+ id)
+}
+
+
+const TodoServices = {createTodo, getAllTodo, updateTodo, deleteTodo}
 export default TodoServices

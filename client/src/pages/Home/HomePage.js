@@ -1,50 +1,82 @@
-import { useEffect, useState } from "react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../../components/Layout/Navbar";
-import PopModel from "../../components/Layout/PopModel";
 import TodoServices from "../../Services/TodoServices";
 import Card from "../../components/Card/Card";
+import Spinner from "../../components/Spinner";
+import PopModal from "../../components/Layout/PopModel";
 
 const HomePage = () => {
   const [showModal, setShowModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [allTask, setAllTask] = useState([])
+  const [allTask, setAllTask] = useState([]);
   //handle modal
   const openModalHandler = () => {
     setShowModal(true);
   };
 
-  useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem('todoapp'))
-    const id = userData && userData?.user.id
-    const getUserTask = async () => {
-      try {
-        const {data} = await TodoServices.getAllTodo(id)
-        // console.log(data)
-        setAllTask(data?.todos)
-      }catch (error) {
-        console.log(error)
-      }
+  //search
+  const handleSearch = (e) => {
+    const query = e.target.value;
+    let filterList = allTask?.filter((item) =>
+      item.title.toLowerCase().match(query.toLowerCase())
+    );
+    console.log("Filterd list===>", filterList);
+    setSearchQuery(query);
+    if (query && filterList.length > 0) {
+      setAllTask(filterList && filterList);
+    } else {
+      getUserTask();
     }
-    getUserTask()
-  },[])
+  };
+
+  //get User todos
+  const userData = JSON.parse(localStorage.getItem("todoapp"));
+  const id = userData && userData?.user.id;
+  console.log(id);
+  const getUserTask = async () => {
+    setLoading(true);
+    try {
+      const { data } = await TodoServices.getAllTodo(id);
+      setLoading(false);
+      // console.log(data);
+      setAllTask(data?.todos);
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getUserTask();
+  }, []);
   return (
-    <div>
+    <>
       <Navbar />
       <div className="container">
         <div className="add-task">
           <h1>Your Task</h1>
-          <input type="search" placeholder="search your task" />
-          <button className="btn btn-primary" onClick={openModalHandler}>
+          <input
+            type="search"
+            placeholder="search your task"
+            value={searchQuery}
+            onChange={handleSearch}
+          />
+          <button className=" btn btn-primary" onClick={openModalHandler}>
             Create Task <i className="fa-solid fa-plus"></i>
           </button>
         </div>
-        <h1>
-          {allTask && <Card allTask={allTask} />}
-        </h1>
-        {/* =============modal================ */}
-        <PopModel
+
+        {loading ? (
+          <Spinner />
+        ) : (
+          allTask && <Card allTask={allTask} getUserTask={getUserTask} />
+        )}
+        {/* ========== modal =========== */}
+        <PopModal
+          getUserTask={getUserTask}
           showModal={showModal}
           setShowModal={setShowModal}
           title={title}
@@ -53,7 +85,7 @@ const HomePage = () => {
           setDescription={setDescription}
         />
       </div>
-    </div>
+    </>
   );
 };
 

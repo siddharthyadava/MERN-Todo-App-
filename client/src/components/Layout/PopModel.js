@@ -69,11 +69,11 @@ const PopModal = ({
                 <div className="form-floating">
                   <textarea
                     className="form-control"
-                    id="floatingTextarea"
+                    id="floatigTextarea"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   ></textarea>
-                  <label htmlFor="floatingTextarea">Description</label>
+                  <label htmlFor="floatigTextarea">Dscription</label>
                 </div>
               </div>
               <div className="modal-footer">

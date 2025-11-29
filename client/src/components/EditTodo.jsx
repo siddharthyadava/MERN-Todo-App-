@@ -1,44 +1,45 @@
-import React, { useState } from 'react'
-import toast from 'react-hot-toast';
-import TodoServices from '../Services/TodoServices';
+import React, { useState } from "react";
+import toast from "react-hot-toast";
+import TodoServices from "../Services/TodoServices";
 
-const EditTodo = ({task, setShowModal}) => {
-    const [title, setTitle] = useState(task?.title);
-    const [description, setDescription] = useState(task?.description);
-    const [isCompleted, setIsCompleted] = useState(task?.isCompleted);
+const EditTodo = ({ task, setShowModal, getUserTask }) => {
+  const [title, setTitle] = useState(task?.title);
+  const [description, setDescription] = useState(task?.description);
+  const [isCompleted, setIsCompleted] = useState(task?.isCompleted);
 
-    const handleClose = () => {
-        setShowModal(false);
+  const handleClose = () => {
+    setShowModal(false);
+  };
+
+  const handleSelectChange = (e) => {
+    setIsCompleted(e.target.value);
+  };
+  //   console.log(isCompleted);
+  const id = task?._id;
+
+  //update
+  const handleSubmit = async () => {
+    try {
+      const userData = JSON.parse(localStorage.getItem("todoapp"));
+      const createdBy = userData && userData.user.id;
+      const data = { title, description, createdBy, isCompleted };
+      if (!title || !description) {
+        return toast.error("Please prvide title or description");
+      }
+      await TodoServices.updateTodo(id, data);
+      setShowModal(false);
+      toast.success("Task Updated Successfully");
+      setTitle("");
+      setDescription("");
+      getUserTask();
+    } catch (error) {
+      console.log(error);
+      toast.error(error);
     }
-
-    const handleSelectChange = (e) => {
-        setIsCompleted(e.target.value);
-    }
-    // console.log(isCompleted);
-    const id = task?._id
-
-    //update submit
-    const handleSubmit = async () => {
-        try {
-            const userData = JSON.parse(localStorage.getItem("todoapp"));
-            const createdBy = userData && userData.user.id;
-            const data = { title, description, createdBy, isCompleted };
-            if (!title || !description) {
-                return toast.error("Please prvide title or description");
-            }
-            await TodoServices.updateTodo(id, data);
-            setShowModal(false);
-            toast.success("Task Updated Successfully");
-            setTitle("");
-            setDescription("");
-        } catch (error) {
-            console.log(error);
-            toast.error(error);
-        }
-    };
-    return (
-        <>
-        {task && (
+  };
+  return (
+    <>
+      {task && (
         <div
           className="modal"
           tabIndex="-1"
@@ -70,18 +71,18 @@ const EditTodo = ({task, setShowModal}) => {
                 <div className="form-floating">
                   <textarea
                     className="form-control"
-                    id="floatingTextarea"
+                    id="floatigTextarea"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   ></textarea>
-                  <label htmlFor="floatingTextarea">Description</label>
+                  <label htmlFor="floatigTextarea">Dscription</label>
                 </div>
-                <div className='my-3'>
-                    <select className='form-select' onChange={handleSelectChange}>
-                        <option selected>Select Status</option>
-                        <option value={true}>Completed</option>
-                        <option value={false}>Incomplete</option>
-                    </select>
+                <div className="my-3">
+                  <select className="form-select" onChange={handleSelectChange}>
+                    <option selected>Select Status</option>
+                    <option value={true}>Completed</option>
+                    <option value={false}>Incomplete</option>
+                  </select>
                 </div>
               </div>
               <div className="modal-footer">
@@ -97,15 +98,15 @@ const EditTodo = ({task, setShowModal}) => {
                   className="btn btn-primary"
                   onClick={handleSubmit}
                 >
-                  Update
+                  UPDATE
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
-        </>
-    )
+    </>
+  );
 };
 
 export default EditTodo;

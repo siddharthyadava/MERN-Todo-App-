@@ -1,15 +1,31 @@
 import React, { useState } from 'react'
 import EditTodo from '../EditTodo';
+import toast from 'react-hot-toast';
+import TodoServices from '../../Services/TodoServices';
 
-const Card = ({allTask}) => {
+const Card = ({allTask, getUserTask}) => {
   const [showModal, setShowModal] = useState(false);
 
   //handle Edit
   const handleEdit = () => {
     setShowModal(true);
   }
+
+  //handle delete
+  const handleDelete = async (id) => {
+    try {
+      await TodoServices.deleteTodo(id);
+      toast.success("Task Deleted Successfully");
+      getUserTask();
+    } catch (error) {
+      console.log(error);
+      toast.error(error);
+    }
+  }
+
   return (
     <>
+    <div className="card-container">
       {
         allTask?.map((task,i) => (
           <>
@@ -29,7 +45,7 @@ const Card = ({allTask}) => {
                   <button className="btn btn-warning" title='EDIT Task' onClick={handleEdit}>
                     <i className="fa-regular fa-pen-to-square"></i>
                   </button>
-                  <button className="btn btn-danger ms-2" title='Delete Task'>
+                  <button className="btn btn-danger ms-2" title='Delete Task' onClick= { () => handleDelete(task?._id)}>
                     <i className="fa-solid fa-trash"></i>
                   </button>
                 </div>
@@ -40,6 +56,7 @@ const Card = ({allTask}) => {
           </>
         ))
       }
+      </div>
     </>
   )
 }
