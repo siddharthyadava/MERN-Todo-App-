@@ -11,7 +11,7 @@ module.exports = async (req, res, next) => {
           message: "Un-Authorize user",
         });
       } else {
-        req.body.id = decode.id;
+        req.user = { id: decode.id };
         next();
       }
     });
