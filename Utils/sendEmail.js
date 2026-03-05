@@ -1,8 +1,7 @@
-const transporter = require("../config/email");
+const { sendEmail } = require("../config/email");
 
 const sendResetPasswordEmail = async (to, resetUrl) => {
-  await transporter.sendMail({
-    from: `"Todo App" <${process.env.EMAIL_USER}>`,
+  await sendEmail({
     to,
     subject: "Reset Your Password",
     html: `
@@ -10,6 +9,7 @@ const sendResetPasswordEmail = async (to, resetUrl) => {
       <p>Click the link below:</p>
       <a href="${resetUrl}">${resetUrl}</a>
     `,
+    text: `Password Reset\nClick the link below:\n${resetUrl}`,
   });
 };
 

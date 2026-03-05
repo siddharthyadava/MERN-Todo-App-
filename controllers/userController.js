@@ -4,19 +4,22 @@ const JWT = require("jsonwebtoken");
 const crypto = require("crypto");
 const { sendResetPasswordEmail} = require ("../Utils/sendEmail")
 
+const normalizeEmail = (email = "") => email.trim().toLowerCase();
+
 // REGISTER
 const registerController = async (req, res) => {
   try {
     const { username, email, password } = req.body;
+    const normalizedEmail = normalizeEmail(email);
     //validation
-    if (!username || !email || !password) {
+    if (!username || !normalizedEmail || !password) {
       return res.status(500).send({
         success: false,
         message: "Please Provide All Fields",
       });
     }
     // check exisiting suer
-    const existingUser = await userModel.findOne({ email });
+    const existingUser = await userModel.findOne({ email: normalizedEmail });
     if (existingUser) {
       return res.status(500).send({
         success: false,
@@ -28,7 +31,7 @@ const registerController = async (req, res) => {
     // save user
     const newUser = new userModel({
       username,
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
     });
     await newUser.save();
@@ -51,8 +54,9 @@ const registerController = async (req, res) => {
 const loginControler = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const normalizedEmail = normalizeEmail(email);
     //find user
-    const user = await userModel.findOne({ email });
+    const user = await userModel.findOne({ email: normalizedEmail });
     //validation
     if (!user) {
       return res.status(404).send({
@@ -95,16 +99,16 @@ const loginControler = async (req, res) => {
 //FORGOT PASSWORD
 const forgotPasswordController = async (req, res) => {
   try {
-    const { email } = req.body;
+    const normalizedEmail = normalizeEmail(req.body?.email);
 
-    if (!email) {
+    if (!normalizedEmail) {
       return res.status(400).send({
         success: false,
         message: "Please provide email",
       });
     }
 
-    const user = await userModel.findOne({ email });
+    const user = await userModel.findOne({ email: normalizedEmail });
 
     // Do not reveal if user exists or not
     if (!user) {
@@ -121,22 +125,30 @@ const forgotPasswordController = async (req, res) => {
     user.resetPasswordExpire = Date.now() + 60 * 60 * 1000; // 1 hour
     await user.save();
 
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
-    
-    // TODO: send email here using nodemailer or any email service
-    // for now, log it so you can test:
+    const clientUrl = process.env.CLIENT_URL?.startsWith("http")
+      ? process.env.CLIENT_URL
+      : `https://${process.env.CLIENT_URL}`;
+    const resetUrl = `${clientUrl}/reset-password/${resetToken}`;
+
     console.log("Password reset link:", resetUrl);
-    await sendResetPasswordEmail(user.email, resetUrl);
+    try {
+      await sendResetPasswordEmail(user.email, resetUrl);
+    } catch (mailError) {
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save();
+      throw new Error(`Failed to send reset password email: ${mailError.message}`);
+    }
 
     return res.status(200).send({
       success: true,
       message: "If this email is registered, a password reset link has been sent",
     });
   } catch (error) {
-    console.log(error);
+    console.log("Forgot password error:", error.message || error);
     res.status(500).send({
       success: false,
-      message: "Error in forgot password API",
+      message: "Unable to send reset password email. Please try again.",
     });
   }
 };
