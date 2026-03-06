@@ -2,9 +2,11 @@ const userModel = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 const JWT = require("jsonwebtoken");
 const crypto = require("crypto");
-const { sendResetPasswordEmail} = require ("../Utils/sendEmail")
+const { sendResetPasswordOtpEmail } = require("../Utils/sendEmail");
 
 const normalizeEmail = (email = "") => email.trim().toLowerCase();
+const generateSixDigitOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
+const hashOtp = (otp) => crypto.createHash("sha256").update(otp).digest("hex");
 
 // REGISTER
 const registerController = async (req, res) => {
@@ -114,41 +116,88 @@ const forgotPasswordController = async (req, res) => {
     if (!user) {
       return res.status(200).send({
         success: true,
-        message: "If this email is registered, a password reset link has been sent",
+        message: "If this email is registered, a 6-digit OTP has been sent",
       });
     }
 
-    // Create token
-    const resetToken = crypto.randomBytes(32).toString("hex");
+    const otp = generateSixDigitOtp();
+    const otpHash = hashOtp(otp);
 
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordExpire = Date.now() + 60 * 60 * 1000; // 1 hour
+    user.resetPasswordToken = otpHash;
+    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
     await user.save();
 
-    const clientUrl = process.env.CLIENT_URL?.startsWith("http")
-      ? process.env.CLIENT_URL
-      : `https://${process.env.CLIENT_URL}`;
-    const resetUrl = `${clientUrl}/reset-password/${resetToken}`;
-
-    console.log("Password reset link:", resetUrl);
     try {
-      await sendResetPasswordEmail(user.email, resetUrl);
+      await sendResetPasswordOtpEmail(user.email, otp);
     } catch (mailError) {
       user.resetPasswordToken = undefined;
       user.resetPasswordExpire = undefined;
       await user.save();
-      throw new Error(`Failed to send reset password email: ${mailError.message}`);
+      throw new Error(`Failed to send reset password OTP email: ${mailError.message}`);
     }
 
     return res.status(200).send({
       success: true,
-      message: "If this email is registered, a password reset link has been sent",
+      message: "If this email is registered, a 6-digit OTP has been sent",
     });
   } catch (error) {
     console.log("Forgot password error:", error.message || error);
     res.status(500).send({
       success: false,
-      message: "Unable to send reset password email. Please try again.",
+      message: "Unable to send reset password OTP. Please try again.",
+    });
+  }
+};
+
+// VERIFY RESET OTP
+const verifyResetOtpController = async (req, res) => {
+  try {
+    const normalizedEmail = normalizeEmail(req.body?.email);
+    const otp = `${req.body?.otp || ""}`.trim();
+
+    if (!normalizedEmail || !otp) {
+      return res.status(400).send({
+        success: false,
+        message: "Please provide email and OTP",
+      });
+    }
+
+    if (!/^\d{6}$/.test(otp)) {
+      return res.status(400).send({
+        success: false,
+        message: "Please provide a valid 6-digit OTP",
+      });
+    }
+
+    const user = await userModel.findOne({
+      email: normalizedEmail,
+      resetPasswordToken: hashOtp(otp),
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).send({
+        success: false,
+        message: "Invalid or expired OTP",
+      });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+    await user.save();
+
+    return res.status(200).send({
+      success: true,
+      message: "OTP verified successfully",
+      resetToken,
+    });
+  } catch (error) {
+    console.log("Verify reset OTP error:", error.message || error);
+    res.status(500).send({
+      success: false,
+      message: "Unable to verify OTP. Please try again.",
     });
   }
 };
@@ -163,6 +212,13 @@ const resetPasswordController = async (req, res) => {
       return res.status(400).send({
         success: false,
         message: "Please provide new password",
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).send({
+        success: false,
+        message: "Password must be at least 6 characters",
       });
     }
 
@@ -201,4 +257,10 @@ const resetPasswordController = async (req, res) => {
   }
 };
 
-module.exports = { registerController, loginControler, forgotPasswordController, resetPasswordController };
+module.exports = {
+  registerController,
+  loginControler,
+  forgotPasswordController,
+  verifyResetOtpController,
+  resetPasswordController,
+};

@@ -3,6 +3,7 @@ const {
   registerController,
   loginControler,
   forgotPasswordController,
+  verifyResetOtpController,
   resetPasswordController,
 } = require("../controllers/userController");
 
@@ -19,8 +20,11 @@ router.post("/login", loginControler);
 // FORGOT PASSWORD // POST
 router.post("/forgot-password", forgotPasswordController);
 
+// VERIFY RESET OTP // POST
+router.post("/verify-reset-otp", verifyResetOtpController);
+
 // RESET PASSWORD // POST
-router.post("/reset-password/:token", resetPasswordController)
+router.post("/reset-password/:token", resetPasswordController);
 
 //export
 module.exports = router;
