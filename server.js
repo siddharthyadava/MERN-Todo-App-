@@ -4,11 +4,6 @@ const dotenv = require("dotenv");
 const colors = require("colors");
 const cors = require("cors");
 const connectDB = require("./config/db");
-const {
-  shouldSkipKeepAliveLogging,
-  startIdleKeepAlive,
-  trackServerActivity,
-} = require("./Utils/idleKeepAlive");
 
 //env config
 dotenv.config();
@@ -20,10 +15,9 @@ connectDB();
 const app = express();
 
 //middlewares
-app.use(trackServerActivity);
-app.use(morgan("dev", { skip: shouldSkipKeepAliveLogging }));
 app.use(express.json());
 app.use(cors());
+app.use(morgan("dev"));
 
 //routes
 app.use("/api/v1/user", require("./routes/userRoute"));
@@ -35,7 +29,6 @@ const PORT = process.env.PORT || 8000;
 
 //listen
 app.listen(PORT, () => {
-  startIdleKeepAlive(PORT);
   console.log(
     `Node Server Running on ${process.env.DEV_MODE} mode on Port no ${PORT}`
       .bgMagenta
