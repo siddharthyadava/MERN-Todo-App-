@@ -1,11 +1,15 @@
 const express = require("express");
-const { testingController } = require("../controllers/testController");
+const {
+  keepAliveController,
+  testingController,
+} = require("../controllers/testController");
 
 //router object
 const router = express.Router();
 
 //Routes
 router.get("/", testingController);
+router.get("/keepalive", keepAliveController);
 
 //export
 module.exports = router;
