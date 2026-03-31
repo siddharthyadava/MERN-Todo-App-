@@ -14,6 +14,15 @@ connectDB();
 // rest object
 const app = express();
 
+// Keep-alive "Null" endpoint
+app.get("/ping", (req, res) => {
+  res.status(200).end(); 
+});
+
+// Existing routes
+app.use("/api/v1/user", require("./routes/userRoute"));
+
+
 //middlewares
 app.use(express.json());
 app.use(cors());
@@ -34,3 +43,18 @@ app.listen(PORT, () => {
       .bgMagenta
   );
 });
+
+
+const https = require("https");
+
+// Replace with your actual Render URL
+const SERVER_URL = "https://onrender.com";
+
+setInterval(() => {
+  https.get(SERVER_URL, (res) => {
+    // Zero output logic: do nothing with the response
+  }).on("error", (err) => {
+    // Only logs if the network fails
+    console.error("Keep-alive error:", err.message);
+  });
+}, 600000); // 10 minutes
